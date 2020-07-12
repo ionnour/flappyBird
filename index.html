@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Flappy Bird</title>
+	<style type="text/css">
+		body{
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+		}
+		
+
+	</style>
+</head>
+<body>
+	<h1>Flappy Bird</h1>
+	<canvas id="canvas" width="288" height="512"></canvas>
+</body>
+
+<script type="text/javascript">
+	let canvas = document.getElementById('canvas');
+	let ctx = canvas.getContext("2d");
+
+	//geting assets
+
+	let bird 	= new Image();
+	let bg		= new Image();
+	let fg		= new Image();
+	let pipeTop	= new Image();
+	let pipeBottom = new Image();
+
+	bird.src = "assets/img/bird.png";
+	bg.src 	 = "assets/img/bg.png";
+	fg.src 	 = "assets/img/fg.png";
+	pipeTop.src = "assets/img/pipeTop.png";
+	pipeBottom.src = "assets/img/pipeBottom.png";
+
+
+	let flySound = new Audio();
+	let scoreSound = new Audio();
+
+	flySound.src = "assets/sound/fly.mp3";
+	scoreSound.src = "assets/sound/score.mp3";
+
+	//general 
+
+let user = {
+
+	x : 10,
+	y : 150,
+
+	gravity: 1.3,
+
+	score: 0
+
+};
+
+let gap = 85;
+let pipeLength;
+
+//key listener;
+
+document.addEventListener('keydown', flyUp);
+
+function flyUp(){
+	user.y = user.y - 50;
+	flySound.play();
+}
+
+
+//pipes
+
+let pipe = [];
+
+pipe[0] = {
+	x: canvas.width,
+	y : 0 
+}
+
+function draw() {
+
+	ctx.drawImage(bg, 0, 0);
+
+	for(var i = 0; i < pipe.length; i++){
+        
+        pipeLength = pipeTop.height+gap;
+        ctx.drawImage(pipeTop,pipe[i].x,pipe[i].y);
+        ctx.drawImage(pipeBottom,pipe[i].x,pipe[i].y+pipeLength);
+             
+        pipe[i].x--;
+        
+        if( pipe[i].x == 125 ){
+            pipe.push({
+                x : canvas.width,
+                y : Math.floor(Math.random()*pipeTop.height)-pipeTop.height
+            }); 
+        }
+
+        // detect collision
+        
+        if( user.x + bird.width >= pipe[i].x && user.x <= pipe[i].x + pipeTop.width && (user.y <= pipe[i].y + pipeTop.height || user.y+bird.height >= pipe[i].y+pipeLength) || user.y + bird.height >=  canvas.height - fg.height){
+            location.reload(); // reload the page
+        }
+        
+        if(pipe[i].x == 5){
+            user.score++;
+            scoreSound.play();
+        }
+        
+        
+    }
+
+    ctx.drawImage(fg,0,canvas.height - fg.height);
+    
+    ctx.drawImage(bird,user.x,user.y);
+    
+    user.y += user.gravity;
+    
+    ctx.fillStyle = "#000";
+    ctx.font = "20px Verdana";
+    ctx.fillText("Score : "+user.score,10,canvas.height-20);
+    
+    requestAnimationFrame(draw);
+
+
+
+}
+
+draw();
+</script>
+</html>
